@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreProductRequest;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -31,28 +32,10 @@ class ProductController extends Controller
     }
     
     //Lưu sản phẩm được tạo mới (Xử lý form tạo mới)
-    public function store(Request $request) {
-        $data = $request->validate(
-            [
-                'name' => 'required|max:255',
-                'category_id' => 'required|exists:categories,id',
-                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-                'price' => 'required|numeric|min:0',
-                'quantity' => 'required|numeric|min:0',
-                'description' => 'nullable|string',
-            ],
-            [
-                'name.required' => 'Tên sản phẩm không được để trống',
-                'name.max' => 'Tên sản phẩm quá dài',
-                'category_id.required' => 'Danh mục không được để trống',
-                'category_id.exists' => 'Danh mục không tồn tại',
-                'price.required' => 'Giá sản phẩm không được để trống',
-                'price.numeric' => 'Giá phải là số',
-                'quantity.required' => 'Số lượng không được để trống',
-                'quantity.numeric' => 'Số lượng phải là số',
-            ]
-        );
-        
+    public function store(StoreProductRequest $request) {
+        // Validate dữ liệu đã được thực hiện trong StoreProductRequest
+        $data = $request->validated();
+        // Tạo mới sản phẩm với dữ liệu đã được xác thực
         $product = new Product();
         $product->name = $data['name'];
         $product->category_id = $data['category_id'];
@@ -65,7 +48,6 @@ class ProductController extends Controller
         }
 
         $product->save();
-        
         return redirect()->route('admin.products.index')->with('success', 'Thêm sản phẩm thành công');
     }
 
